@@ -24,15 +24,15 @@
  ********************************************************/
 team_t team = {
     /* Team name */
-    "ateam",
+    " Any Ideas?",
     /* First member's full name */
-    "Don Knuth",
+    "Skyler Manzanares",
     /* First member's email address */
-    "dknuth@cs.stanford.edu",
+    "smanzana@nmt.edu",
     /* Second member's full name */
-    "Alonzo Church",
+    "James Klarkowski",
     /* Second member's email address */
-    "achurch@cs.princeton.edu"
+    "trassix@nmt.edu"
 };
 
 /* single word (4) or double word (8) alignment */
@@ -78,7 +78,7 @@ void mm_free(void *ptr)
 /*
  * mm_realloc - Implemented simply in terms of mm_malloc and mm_free
  */
-void *mm_realloc(void *ptr, size_t size)
+void *mm_realloc(void *ptr, size_t size) // Leave as is by lab instructions
 {
     void *oldptr = ptr;
     void *newptr;
