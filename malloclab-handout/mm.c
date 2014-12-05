@@ -56,7 +56,7 @@ typedef struct t_heap_entry  {
     void *address = NULL;
     
     
-} entry;
+} entry_t;
 
 typedef struct t_list_node {
     //next node in list
@@ -64,7 +64,7 @@ typedef struct t_list_node {
     //prev node in list
     t_list_node *prev = NULL;
     //address linked
-    void *ptr addr = NULL;
+    entry_t *entry = NULL;
     
 } node_t;
 
@@ -128,21 +128,27 @@ void *mm_realloc(void *ptr, size_t size)
 }
 
 
-llist *newList(void) {
+llist *newList(void *heapBase, int heapSize) {
     llist *list;
-    list = malloc(size_t * sizeof(llist));
+    list = malloc(sizeof(llist));
     
-    node_t
-    listAdd(list,
+    node_t *node;
+    node = newNode(heapBase, heapSize);
+    listAdd(list, node);
     
     
     
 }
 
-node_t *newNode(void *addr) {
+node_t *newNode(void *addr, int size) {
     node_t *node;
-    node = malloc(size_t * sizeof(t_node));
+    node = malloc(size_t * sizeof(node_t));
     
+    entry_t *entry;
+    entry = malloc(sizeof(entry_t)); 
+
+    node->entry = entry;
+
     return node;
      
 }
@@ -154,11 +160,18 @@ void listAdd(llist list, node_t *node) {
    
     list->tail->next = node;
     list->tail = node;
-    
-    list->size++; 
+ 
 } 
 
+entry_t *newEntry(void *addr, int size) {
+    entry_t *entry;
+    entry = malloc(sizeof(entry));
 
+    entry->addr = addr;
+    entry->size = size;
+
+    return entry;
+}
 
 
 
