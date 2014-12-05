@@ -24,7 +24,7 @@
  ********************************************************/
 team_t team = {
     /* Team name */
-    "ateam",
+    " Any Ideas?",
     /* First member's full name */
     "Skyler Manzanares",
     /* First member's email address */
@@ -110,7 +110,7 @@ void mm_free(void *ptr)
 /*
  * mm_realloc - Implemented simply in terms of mm_malloc and mm_free
  */
-void *mm_realloc(void *ptr, size_t size)
+void *mm_realloc(void *ptr, size_t size) // Leave as is by lab instructions
 {
     void *oldptr = ptr;
     void *newptr;
