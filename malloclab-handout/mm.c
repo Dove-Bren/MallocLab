@@ -66,7 +66,7 @@ typedef struct t_list_node {
     //address linked
     void *ptr addr = NULL;
     
-} t_node;
+} node_t;
 
 typedef struct t_linked_list {
     
@@ -131,22 +131,32 @@ void *mm_realloc(void *ptr, size_t size)
 llist *newList(void) {
     llist *list;
     list = malloc(size_t * sizeof(llist));
-
     
+    node_t
+    listAdd(list,
     
     
     
 }
 
-t_node *newNode(void *addr) {
-    t_node *node;
+node_t *newNode(void *addr) {
+    node_t *node;
     node = malloc(size_t * sizeof(t_node));
     
     return node;
      
 }
 
-
+void listAdd(llist list, node_t *node) {
+    if (node == NULL) {
+       return;
+    }
+   
+    list->tail->next = node;
+    list->tail = node;
+    
+    list->size++; 
+} 
 
 
 
