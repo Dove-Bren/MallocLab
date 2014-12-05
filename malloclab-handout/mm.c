@@ -44,6 +44,38 @@ team_t team = {
 
 #define SIZE_T_SIZE (ALIGN(sizeof(size_t)))
 
+/**
+ * A record of the start of a <b>free area</b>  on our heap.<br />
+ * Will keep track of the starting address of the free space as well as how big it is
+ *
+ **/ 
+typedef struct t_heap_entry  {
+    //how much space is allocated
+    int size;
+    //the actual address
+    void *address = NULL;
+    
+    
+} entry;
+
+typedef struct t_list_node {
+    //next node in list
+    t_list_node *next = NULL;
+    //prev node in list
+    t_list_node *prev = NULL;
+    //address linked
+    void *ptr addr = NULL;
+    
+} t_node;
+
+typedef struct t_linked_list {
+    
+    t_list_node *head = NULL;
+    t_list_node *tail = NULL;
+
+    int size = 0;
+} llist;
+
 /* 
  * mm_init - initialize the malloc package.
  */
@@ -96,7 +128,23 @@ void *mm_realloc(void *ptr, size_t size)
 }
 
 
+llist *newList(void) {
+    llist *list;
+    list = malloc(size_t * sizeof(llist));
 
+    
+    
+    
+    
+}
+
+t_node *newNode(void *addr) {
+    t_node *node;
+    node = malloc(size_t * sizeof(t_node));
+    
+    return node;
+     
+}
 
 
 
