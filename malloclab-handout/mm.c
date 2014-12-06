@@ -134,7 +134,8 @@ void *mm_malloc(size_t size)
     {
         printf("While Loop: Looking for space!\n");
         //not enough space! Increase heap by double
-        heap = mem_sbrk(heapSize);
+        mem_sbrk(heapSize);
+        heap = mem_heap_lo();
         heapSize *= 2;
     
        //after increasing heapsize, we need to modify the last element in the list to make sure it accoutns for all the size we have. 
@@ -158,7 +159,7 @@ void *mm_malloc(size_t size)
         printf("appending new zone. Sizes (new, old): [%d, %d]", newSize, oldSize);
 	//create a new header detailing 
 	int difference = oldSize - newSize;
-        insert(nextByte(addr), difference);
+        format(nextByte(addr), difference);
 
         //TODO make it so if there's a nother memory location after
         //     that is not in use, you combine them and their space
@@ -368,6 +369,7 @@ void *findFit(int size)
       return zone;
     }
     
+    //printf("Area too small {size: %d need: %d}\n", getSize(head), size); 
     //we didn't find one that was both avaialble and big enough.
     zone = getNext(zone);
   }
