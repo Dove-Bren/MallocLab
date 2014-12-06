@@ -48,7 +48,7 @@ team_t team = {
 /**
  * The initial size of our heap
  **/
-#define HEAP_SIZE 4048
+#define INIT_HEAP_SIZE 4048
 
 /**
  * The header structure. We need how big the spot is
@@ -60,6 +60,7 @@ typedef struct {
 } head_t;
 
 void *heap;
+int heapSize;
 
 /* 
  * mm_init - initialize the malloc package.
@@ -79,6 +80,7 @@ void *heap;
 int mm_init(void)
 {
     heap = mem_sbrk(HEAP_SIZE);
+    heapSize = INIT_HEAP_SIZE;
     return 0;
 }
 
@@ -212,7 +214,26 @@ void *findFit(int size)
   //get the first allocation address in the list
   void *zone = getFirst();
   
-  while 
+  while (getOffset(zone) < heapSize && getOffset(zone) > 0)
+  {
+    //it's in our heap. Check it's size and inUse variable
+
+    //get head of the current zone we're looking at
+    head_t *head = getHead(zone);
+    
+    if (getSize(head) >= size)
+    if (getInUse(head) == 0)
+    {
+      //big enough and not in use! we can use it!
+      return zone;
+    }
+    
+    //we didn't find one that was both avaialble and big enough.
+    zone = getNext(zone);
+  }
+  
+  //we never found a zone that fit our requirements
+  return NULL;
 } 
 
 /**
