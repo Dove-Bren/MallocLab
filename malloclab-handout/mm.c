@@ -59,6 +59,18 @@ typedef struct {
   char inUse;// = false;
 } head_t;
 
+
+//FUNCTION PROTOTYPES
+head_t *getHead(void *allocation);
+int getSize(head_t *head);
+void *getNext(void *allocation);
+void *getFirst();
+void *insert(void *addr, int size);
+void *findFit(int size);
+int getOffset(void *adr);
+char getInUse(head_t *head);
+
+
 void *heap;
 int heapSize;
 
@@ -253,7 +265,19 @@ int getOffset(void *addr)
   return offset; 
 }
 
-
+/**
+ * Returns the byte-wide indication of if the header indicates that the zone is in use.<br />
+ * IN USE: 1    NOT IN USE: 0
+ **/
+char getInUse(head_t *head) 
+{
+  if (head == NULL)
+  {
+    return -1;
+  }
+  
+  return head->inUse;
+}
 
 
 
