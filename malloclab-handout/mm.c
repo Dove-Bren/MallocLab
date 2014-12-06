@@ -94,10 +94,17 @@ int heapSize;
  */
 int mm_init(void)
 {
+    printf("Initializing...\n");
+   
     heap = mem_sbrk(INIT_HEAP_SIZE);
     heapSize = INIT_HEAP_SIZE;
 
     format(heap, INIT_HEAP_SIZE - sizeof(head_t));
+
+    void *first = getFirst();
+    printf("Size: %d\n", getSize(getHead(first)));
+
+
 
     return 0;
 }
@@ -108,11 +115,11 @@ int mm_init(void)
  */
 void *mm_malloc(size_t size)
 {
-    printf("Call to Malloc with size: %d", size);
+    printf("Call to Malloc with size: %d\n", size);
     
     if (size == 0)
     {
-        return;
+        return NULL;
     }
     int newSize = ALIGN(size + SIZE_T_SIZE);
     
@@ -121,34 +128,36 @@ void *mm_malloc(size_t size)
         return NULL;
     } 
 
-    void *addr  = findFit(size);
+    void *addr  = findFit(newSize);
     
     while (addr == NULL) 
     {
-        printf("While Loop: Looking for space!");
+        printf("While Loop: Looking for space!\n");
         //not enough space! Increase heap by double
         heap = mem_sbrk(heapSize);
         heapSize *= 2;
     
        //after increasing heapsize, we need to modify the last element in the list to make sure it accoutns for all the size we have. 
 
-       addr = findFit(size);
+       addr = findFit(newSize);
     }
     
     //we got an address, theoritically
-    
+    printf("Found an area to put it!\n"); 
     //get the old size, as we will use it later
-    int oldSize = getSize(addr);   
+    int oldSize = getSize(getHead(addr));   
  
     //insert the new record
-    addr = update(addr, size);
+    addr = update(addr, newSize);
 
     //addr now points to the byte right after our allocated space
-    //if we used all of the space, we're 
-    if (size < oldSize)
+    //if we used all of the space, we're
+    printf("newsize: %d   oldSize: %d\n", newSize, oldSize); 
+    if (newSize < oldSize)
     {
+        printf("appending new zone. Sizes (new, old): [%d, %d]", newSize, oldSize);
 	//create a new header detailing 
-	int difference = oldSize - size;
+	int difference = oldSize - newSize;
         insert(nextByte(addr), difference);
 
         //TODO make it so if there's a nother memory location after
@@ -243,7 +252,7 @@ void *getNext(void *allocation)
   int size = getSize(head);
 
   //move our pointer up (size) bytes
-  void *newAlloc = ((char *) allocation + size);
+  void *newAlloc = ((char *) allocation + size + sizeof(head_t));
 
   return (void *) newAlloc; 
 }
@@ -254,7 +263,7 @@ void *getNext(void *allocation)
  **/
 void *getFirst()
 {
-  int headSize = sizeof(char) * sizeof(head_t);
+  int headSize = sizeof(head_t);
   return ((char *) heap + headSize); //move up the first address (a header) by the size of the header
 }
 
@@ -276,11 +285,11 @@ void *insert(void *addr, int size)
   //give us an easy way to access the different pieces of the header by casting it to a header :DDD
   head_t *head = ((head_t *) addr);
   
-  head->size = size;
+  head->size = size - sizeof(head_t);
   head->inUse = 1;
   
   //increment the passed address by (sizeof header) bytes and return it
-  return ((char *) addr + (sizeof(char) * sizeof(head_t))); 
+  return ((char *) addr +  sizeof(head_t)); 
 }
 
 /**
@@ -314,6 +323,7 @@ void format(void *addr, int size)
   //make sure the address we were passed is in the heap, and that the size isn't too large
   if (offset < 0 || (offset + size) > heapSize) 
   {
+    printf("Error in formatting: too large!\nOffset: %d  size: %d  heapSize: %d\n", offset, size, heapSize);
     //not enough space or outside of bounds
     return;
   }
@@ -330,6 +340,13 @@ void *findFit(int size)
   //get the first allocation address in the list
   void *zone = getFirst();
   
+  if (getSize(getHead(zone)) >= size)
+  if (getInUse(getHead(zone)) == 0)
+  {
+      printf("Got it immediately!\n");
+      return zone;
+  }  
+
   while (getOffset(zone) < heapSize && getOffset(zone) > 0)
   {
     //it's in our heap. Check it's size and inUse variable
