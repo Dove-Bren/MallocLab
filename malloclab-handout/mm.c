@@ -72,6 +72,7 @@ char getInUse(head_t *head);
 void format(void *addr, int size);
 void *getLast();
 void *update(void *addr, int size);
+void *nextByte(void *addr);
 
 void *heap;
 int heapSize;
@@ -379,7 +380,20 @@ char getInUse(head_t *head)
   return head->inUse;
 }
 
+/**
+ *Returns the first byte of the area outside the passed allocation
+ *@param void *addr the ALLOCATION. This is the first byte after the describing header
+ **/
+void *nextByte(void *addr)
+{
+  if (addr == NULL) 
+      return NULL;
 
+  head_t *head;
+  head = getHead(addr);
+  
+  return ((char *) addr + getSize(head));
+}
 
 
 
