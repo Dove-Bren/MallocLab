@@ -102,6 +102,16 @@ int mm_init(void)
  */
 void *mm_malloc(size_t size)
 {
+    int newSize = ALIGN(size + SIZE_T_SIZE);
+
+    if (heap == NULL)
+    {
+        return NULL;
+    } 
+
+    
+
+    /*
     int newsize = ALIGN(size + SIZE_T_SIZE);
     void *p = mem_sbrk(newsize);
     if (p == (void *)-1)
@@ -110,6 +120,7 @@ void *mm_malloc(size_t size)
         *(size_t *)p = size;
         return (void *)((char *)p + SIZE_T_SIZE);
     }
+    */
 }
 
 /*
@@ -219,6 +230,31 @@ void *insert(void *addr, int size)
   
   //increment the passed address by (sizeof header) bytes and return it
   return ((char *) addr + (sizeof(char) * sizeof(head_t))); 
+}
+
+/**
+ * Marks the address passed as the start of a memory area that is NOT in use
+ **/
+void format(void *addr, int size) 
+{
+  if (addr == NULL) 
+     return;
+  if (size <= 0)
+     return;
+   
+  int offset = getOffset(addr); 
+  //make sure the address we were passed is in the heap, and that the size isn't too large
+  if (offset < 0 || (offset + size) > heapSize) 
+  {
+    //not enough space or outside of bounds
+    return;
+  }
+  
+  void *ptr = insert(addr, size);
+  head_t *head = getHead(ptr);
+
+  head->inUse = 0;
+
 }
 
 void *findFit(int size)
