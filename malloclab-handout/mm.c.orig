@@ -160,14 +160,16 @@ llist *newList(void *heapBase, int heapSize) {
 
 /**
  *
- **/
 node_t *newNode(entry_t *entry) {
     node_t *node;
     node = mm_malloc(size_t * sizeof(node_t));
     
+<<<<<<< HEAD
+=======
     entry_t *entry;
     entry = mm_malloc(sizeof(entry_t)); 
 
+>>>>>>> d45dc0439b6c16f1807967cff05ea3850139d2b0
     node->entry = entry;
 
     return node;
@@ -217,12 +219,15 @@ void listAddNode(llist *list, node_t *node) {
  **/
 entry_t *newEntry(void *addr, int size) {
     entry_t *entry;
-    entry = mm_malloc(sizeof(entry));
+<<<<<<< HEAD
+    entry = malloc(sizeof(entry));
     
     //we made or entry, but it doesn't have the correct addr and size values.
     //update those to what we were passed
+=======
     entry = mm_malloc(sizeof(entry));
 
+>>>>>>> d45dc0439b6c16f1807967cff05ea3850139d2b0
     entry->addr = addr;
     entry->size = size;
 
