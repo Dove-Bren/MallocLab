@@ -78,6 +78,17 @@ typedef struct t_linked_list {
 
 /* 
  * mm_init - initialize the malloc package.
+ *
+ * The mm.c from CS:APP uses the following to initalize:
+ *
+ * Allign
+ * Prolog[head(size8, allocated = yes), foot(size = 8, alloc = yes)]
+ * Epilog[head(size = 0, allocated = yes)]
+ * place heap list pointer
+ * extend heap
+ * 
+ * alternativly, would we want to initially set a heap size by defining the epilog 
+ *n blocks from the footer? then we can skip extending the heap during the initalization.
  */
 int mm_init(void)
 {
@@ -102,6 +113,13 @@ void *mm_malloc(size_t size)
 
 /*
  * mm_free - Freeing a block does nothing.
+ *
+ * All we really need to do here is set the allocated bit to 0 for the header
+ *and footer, and put it address in the list (is that right?).
+ *I don't think we dont' need to zero out the payload.
+ *
+ * If we want to, we can coalesce here too (CS:APP does), but it is not needed.
+ *
  */
 void mm_free(void *ptr)
 {
@@ -130,7 +148,7 @@ void *mm_realloc(void *ptr, size_t size)
 
 llist *newList(void *heapBase, int heapSize) {
     llist *list;
-    list = malloc(sizeof(llist));
+    list = mm_malloc(sizeof(llist));
     
     node_t *node;
     node = newNode(heapBase, heapSize);
@@ -142,10 +160,10 @@ llist *newList(void *heapBase, int heapSize) {
 
 node_t *newNode(void *addr, int size) {
     node_t *node;
-    node = malloc(size_t * sizeof(node_t));
+    node = mm_malloc(size_t * sizeof(node_t));
     
     entry_t *entry;
-    entry = malloc(sizeof(entry_t)); 
+    entry = mm_malloc(sizeof(entry_t)); 
 
     node->entry = entry;
 
@@ -165,7 +183,7 @@ void listAdd(llist list, node_t *node) {
 
 entry_t *newEntry(void *addr, int size) {
     entry_t *entry;
-    entry = malloc(sizeof(entry));
+    entry = mm_malloc(sizeof(entry));
 
     entry->addr = addr;
     entry->size = size;
