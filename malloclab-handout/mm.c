@@ -140,33 +140,65 @@ llist *newList(void *heapBase, int heapSize) {
     
 }
 
-node_t *newNode(void *addr, int size) {
+/**
+ *
+node_t *newNode(entry_t *entry) {
     node_t *node;
     node = malloc(size_t * sizeof(node_t));
     
-    entry_t *entry;
-    entry = malloc(sizeof(entry_t)); 
-
     node->entry = entry;
 
     return node;
      
 }
 
-void listAdd(llist list, node_t *node) {
-    if (node == NULL) {
+/**
+ * Adds the passed entry to the end of the list<br />
+ * This function takes care of creating a new node to carry the passed entry.<br />
+ * @param llist *list the list to add to
+ * @param entry_t *entry what entry to add
+ **/
+void listAdd(llist *list, entry_t *entry) {
+  if (list == null || entry == null) {
+    return;
+  }
+  //create a new node to wrap around the entry
+  node_t *node = newNode(entry);
+  
+  //add to the end of the list, and update the pointer to the end of the list
+  //to our new node
+  list->tail->next = node;
+  list->tail = node;
+}
+
+/**
+ * Adds the provided entry to the end of the passed list
+ * @param llist list The list to add the node to
+ * @param node_t *node a node that has already been created and instantiated
+ **/
+void listAddNode(llist *list, node_t *node) {
+    if (list == null || node == NULL) {
        return;
     }
-   
+    //make the current tail of the list point to the passed node.
+    //then, update the list to reflect that the passed node is now the tail
     list->tail->next = node;
     list->tail = node;
  
 } 
 
+/**
+ * Creates a new entry with the provided information.
+ * @param void* addr the starting address of the block this entry keeps track of
+ * @param int size how large the free are this entry describes is
+ * @return entry_t a newly created entry
+ **/
 entry_t *newEntry(void *addr, int size) {
     entry_t *entry;
     entry = malloc(sizeof(entry));
-
+    
+    //we made or entry, but it doesn't have the correct addr and size values.
+    //update those to what we were passed
     entry->addr = addr;
     entry->size = size;
 
