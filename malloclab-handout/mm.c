@@ -190,6 +190,13 @@ void *mm_malloc(size_t size)
  */
 void mm_free(void *ptr)
 {
+    if (ptr == NULL)
+         return;
+
+    head_t *head = getHead(ptr);
+    
+    head->inUse = 0;
+
 }
 
 /*
