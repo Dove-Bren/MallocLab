@@ -69,7 +69,7 @@ void *insert(void *addr, int size);
 void *findFit(int size);
 int getOffset(void *adr);
 char getInUse(head_t *head);
-
+void format(void *addr, int size);
 
 void *heap;
 int heapSize;
@@ -93,6 +93,9 @@ int mm_init(void)
 {
     heap = mem_sbrk(INIT_HEAP_SIZE);
     heapSize = INIT_HEAP_SIZE;
+
+    format(heap, INIT_HEAP_SIZE - sizeof(head_t));
+
     return 0;
 }
 
