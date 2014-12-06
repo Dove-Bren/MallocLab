@@ -24,7 +24,7 @@
  ********************************************************/
 team_t team = {
     /* Team name */
-    "ateam",
+    "Team Awesome & Cool",
     /* First member's full name */
     "Skyler Manzanares",
     /* First member's email address */
@@ -44,37 +44,22 @@ team_t team = {
 
 #define SIZE_T_SIZE (ALIGN(sizeof(size_t)))
 
+
 /**
- * A record of the start of a <b>free area</b>  on our heap.<br />
- * Will keep track of the starting address of the free space as well as how big it is
- *
- **/ 
-typedef struct t_heap_entry  {
-    //how much space is allocated
-    int size;
-    //the actual address
-    void *address = NULL;
-    
-    
-} entry_t;
+ * The initial size of our heap
+ **/
+#define HEAP_SIZE 4048
 
-typedef struct t_list_node {
-    //next node in list
-    t_list_node *next = NULL;
-    //prev node in list
-    t_list_node *prev = NULL;
-    //address linked
-    entry_t *entry = NULL;
-    
-} node_t;
+/**
+ * The header structure. We need how big the spot is
+ * and if it's currently in use
+ **/
+typedef struct block_head_t {
+  int size = 0;
+  bool inUse = false;
+} head_t;
 
-typedef struct t_linked_list {
-    
-    t_list_node *head = NULL;
-    t_list_node *tail = NULL;
-
-    int size = 0;
-} llist;
+void *heap;
 
 /* 
  * mm_init - initialize the malloc package.
@@ -89,9 +74,11 @@ typedef struct t_linked_list {
  * 
  * alternativly, would we want to initially set a heap size by defining the epilog 
  *n blocks from the footer? then we can skip extending the heap during the initalization.
+ * I think yes. That sounds better
  */
 int mm_init(void)
 {
+    heap = mem_sbrk(HEAP_SIZE);
     return 0;
 }
 
@@ -145,89 +132,90 @@ void *mm_realloc(void *ptr, size_t size)
     return newptr;
 }
 
+/**
+ * Returns the header of the allocated block.<br />
+ * This assumes that the passed address is the first byte in the allocation.<br />
+ * If it is not, junk can be expected to be returned.
+ * @param void *allocation a pointer to the first address in the allocated space
+ * @return a head structure describing the allocated area
+ **/
+head_t *getHead(void *allocation) 
+{
+  //get a pointer to (allocation - n bytes) where n is the number of bytes that make up the header
+  void *headPtr = (char *) allocation - (sizeof(char) * sizeof(head_t));
 
-llist *newList(void *heapBase, int heapSize) {
-    llist *list;
-    list = mm_malloc(sizeof(llist));
-    
-    node_t *node;
-    node = newNode(heapBase, heapSize);
-    listAdd(list, node);
-    
-    
-    
+  //cast this to a head
+  head_t *head = ((head_t *) headPtr);
+
+  return head;
 }
 
 /**
- *
+ * Return the size contianed in the passed header
  **/
-node_t *newNode(entry_t *entry) {
-    node_t *node;
-    node = mm_malloc(size_t * sizeof(node_t));
-    
-    entry_t *entry;
-    entry = mm_malloc(sizeof(entry_t)); 
-
-    node->entry = entry;
-
-    return node;
-     
-}
-
-/**
- * Adds the passed entry to the end of the list<br />
- * This function takes care of creating a new node to carry the passed entry.<br />
- * @param llist *list the list to add to
- * @param entry_t *entry what entry to add
- **/
-void listAdd(llist *list, entry_t *entry) {
-  if (list == null || entry == null) {
-    return;
+int getSize(head_t *head) 
+{
+  if (head == null) 
+  {
+     return 0;
   }
-  //create a new node to wrap around the entry
-  node_t *node = newNode(entry);
   
-  //add to the end of the list, and update the pointer to the end of the list
-  //to our new node
-  list->tail->next = node;
-  list->tail = node;
+  return (head->size);
 }
 
 /**
- * Adds the provided entry to the end of the passed list
- * @param llist list The list to add the node to
- * @param node_t *node a node that has already been created and instantiated
+ * Returns the next allocation in the heap after the passed one
  **/
-void listAddNode(llist *list, node_t *node) {
-    if (list == null || node == NULL) {
-       return;
-    }
-    //make the current tail of the list point to the passed node.
-    //then, update the list to reflect that the passed node is now the tail
-    list->tail->next = node;
-    list->tail = node;
- 
-} 
+void *getNext(void *allocation)
+{
+  head_t *head = getHead(allocation);
+  int size = getSize(head);
+
+  //move our pointer up (size) bytes
+  void *newAlloc = ((char *) allocation + size);
+
+  return (void *) newAlloc; 
+}
 
 /**
- * Creates a new entry with the provided information.
- * @param void* addr the starting address of the block this entry keeps track of
- * @param int size how large the free are this entry describes is
- * @return entry_t a newly created entry
+ * Returns the first allocation in the passed heap.<br />
+ * expects the very first address in the heap. That is, this expects the address of the first byte of a header.
  **/
-entry_t *newEntry(void *addr, int size) {
-    entry_t *entry;
-    entry = mm_malloc(sizeof(entry));
-    
-    //we made or entry, but it doesn't have the correct addr and size values.
-    //update those to what we were passed
-    entry = mm_malloc(sizeof(entry));
-
-    entry->addr = addr;
-    entry->size = size;
-
-    return entry;
+void *getFirst(void *heap)
+{
+  int headSize = sizeof(char) * sizeof(head_t);
+  return ((char *) heap + headSize); //move up the first address (a header) by the size of the header
 }
+
+/**
+ * Inserts a header at the passed address.<br />
+ * @param void* addr the address that the first byte of the header will be at
+ * @param int size the size OF THE MEMORY ALLOCATION excluding the header
+ * @return the address of the allocation area.
+ **/
+void *insertHeader(void *addr, int size)
+{
+  //give us an easy way to access the different pieces of the header by casting it to a header :DDD
+  head_t *head = ((head_t *) addr);
+  
+  head->size = size;
+  head->inUse = true;
+  
+  //increment the passed address by (sizeof header) bytes and return it
+  return ((char *) addr + (sizeof(char) * sizeof(head_t))); 
+}
+
+//void format(void *addr, int
+
+
+
+
+
+
+
+
+
+
 
 
 
