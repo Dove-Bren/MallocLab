@@ -79,7 +79,7 @@ int heapSize;
  */
 int mm_init(void)
 {
-    heap = mem_sbrk(HEAP_SIZE);
+    heap = mem_sbrk(INIT_HEAP_SIZE);
     heapSize = INIT_HEAP_SIZE;
     return 0;
 }
