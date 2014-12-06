@@ -109,6 +109,12 @@ void *mm_malloc(size_t size)
 {
     int newSize = ALIGN(size + SIZE_T_SIZE);
 
+    if (size == 0) 
+    {
+    	// No point in allocating a block of size 0
+    	return;
+    }
+    
     if (heap == NULL)
     {
         return NULL;
