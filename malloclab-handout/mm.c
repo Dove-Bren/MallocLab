@@ -147,7 +147,7 @@ void *mm_malloc(size_t size)
     {
 	//create a new header detailing 
 	int difference = oldSize - size;
-        insert(addr, difference);
+        insert(nextByte(addr), difference);
 
         //TODO make it so if there's a nother memory location after
         //     that is not in use, you combine them and their space
@@ -282,6 +282,7 @@ void *insert(void *addr, int size)
 /**
  *Updates the record to the allocation pased
  *This is different from insert in that it doesn't add a new header. Instead it updates it.
+ *Returns a pointer to the data section you are allowed to save in
  **/
 void *update(void *allocation, int size)
 {
@@ -292,7 +293,7 @@ void *update(void *allocation, int size)
     head->size = size;
     head->inUse = 1;
 
-    return ((char *) allocation + size);
+    return allocation;
 }
 
 /**
