@@ -112,7 +112,7 @@ void *mm_malloc(size_t size)
         return NULL;
     } 
 
-    
+    return NULL;    
 
     /*
     int newsize = ALIGN(size + SIZE_T_SIZE);
