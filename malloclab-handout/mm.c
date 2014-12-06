@@ -108,13 +108,13 @@ int mm_init(void)
  */
 void *mm_malloc(size_t size)
 {
-    int newSize = ALIGN(size + SIZE_T_SIZE);
-
-    if (size == 0) 
+    printf("Call to Malloc with size: %d", size);
+    
+    if (size == 0)
     {
-    	// No point in allocating a block of size 0
-    	return;
+        return;
     }
+    int newSize = ALIGN(size + SIZE_T_SIZE);
     
     if (heap == NULL)
     {
@@ -125,6 +125,7 @@ void *mm_malloc(size_t size)
     
     while (addr == NULL) 
     {
+        printf("While Loop: Looking for space!");
         //not enough space! Increase heap by double
         heap = mem_sbrk(heapSize);
         heapSize *= 2;
@@ -153,6 +154,8 @@ void *mm_malloc(size_t size)
         //TODO make it so if there's a nother memory location after
         //     that is not in use, you combine them and their space
     }
+    
+    return addr;
     
     /*
     int newsize = ALIGN(size + SIZE_T_SIZE);
