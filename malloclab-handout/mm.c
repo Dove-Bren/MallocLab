@@ -70,6 +70,7 @@ void *findFit(int size);
 int getOffset(void *adr);
 char getInUse(head_t *head);
 void format(void *addr, int size);
+void *getLast();
 
 void *heap;
 int heapSize;
@@ -112,7 +113,16 @@ void *mm_malloc(size_t size)
         return NULL;
     } 
 
-    return NULL;    
+    void *addr  = findFit(size);
+    
+    while (addr == NULL) 
+    {
+        //not enough space! Increase heap by double
+        heap = mem_sbrk(heapSize);
+        heapSize *= 2;
+    
+        
+    }
 
     /*
     int newsize = ALIGN(size + SIZE_T_SIZE);
@@ -213,6 +223,11 @@ void *getFirst()
 {
   int headSize = sizeof(char) * sizeof(head_t);
   return ((char *) heap + headSize); //move up the first address (a header) by the size of the header
+}
+
+void *getLast() 
+{
+  return NULL;
 }
 
 /**
