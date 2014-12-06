@@ -54,9 +54,9 @@ team_t team = {
  * The header structure. We need how big the spot is
  * and if it's currently in use
  **/
-typedef struct block_head_t {
-  int size = 0;
-  bool inUse = false;
+typedef struct {
+  int size;// = 0;
+  char inUse;// = false;
 } head_t;
 
 void *heap;
@@ -155,7 +155,7 @@ head_t *getHead(void *allocation)
  **/
 int getSize(head_t *head) 
 {
-  if (head == null) 
+  if (head == NULL) 
   {
      return 0;
   }
@@ -181,31 +181,56 @@ void *getNext(void *allocation)
  * Returns the first allocation in the passed heap.<br />
  * expects the very first address in the heap. That is, this expects the address of the first byte of a header.
  **/
-void *getFirst(void *heap)
+void *getFirst()
 {
   int headSize = sizeof(char) * sizeof(head_t);
   return ((char *) heap + headSize); //move up the first address (a header) by the size of the header
 }
 
 /**
- * Inserts a header at the passed address.<br />
+ * Sets the privded area as used.<br />
+ * This is done by first inserting a header, and then returning the address
+ * of the space left for use<br />
  * @param void* addr the address that the first byte of the header will be at
  * @param int size the size OF THE MEMORY ALLOCATION excluding the header
  * @return the address of the allocation area.
  **/
-void *insertHeader(void *addr, int size)
+void *insert(void *addr, int size)
 {
   //give us an easy way to access the different pieces of the header by casting it to a header :DDD
   head_t *head = ((head_t *) addr);
   
   head->size = size;
-  head->inUse = true;
+  head->inUse = 1;
   
   //increment the passed address by (sizeof header) bytes and return it
   return ((char *) addr + (sizeof(char) * sizeof(head_t))); 
 }
 
-//void format(void *addr, int
+void *findFit(int size)
+{
+  //get the first allocation address in the list
+  void *zone = getFirst();
+  
+  while 
+} 
+
+/**
+ *Returns how many bytes the passed address is from the start of the heap.<br />
+ *This function makes no attept to check if the passed address is outside of our heap.
+ **/
+int getOffset(void *addr) 
+{
+  if (addr == NULL) 
+  {
+    return 0;
+  }
+  
+  //get the difference in addrseses
+  int offset = ((char *) addr - (char *) heap);
+  //We don't care if it's negative or outisde of our range. This just returns how off the passed address is
+  return offset; 
+}
 
 
 
