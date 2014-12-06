@@ -71,6 +71,7 @@ int getOffset(void *adr);
 char getInUse(head_t *head);
 void format(void *addr, int size);
 void *getLast();
+void *update(void *addr, int size);
 
 void *heap;
 int heapSize;
@@ -121,9 +122,31 @@ void *mm_malloc(size_t size)
         heap = mem_sbrk(heapSize);
         heapSize *= 2;
     
-        
-    }
+       //after increasing heapsize, we need to modify the last element in the list to make sure it accoutns for all the size we have. 
 
+       addr = findFit(size);
+    }
+    
+    //we got an address, theoritically
+    
+    //get the old size, as we will use it later
+    int oldSize = getSize(addr);   
+ 
+    //insert the new record
+    addr = update(addr, size);
+
+    //addr now points to the byte right after our allocated space
+    //if we used all of the space, we're 
+    if (size < oldSize)
+    {
+	//create a new header detailing 
+	int difference = oldSize - size;
+        insert(addr, difference);
+
+        //TODO make it so if there's a nother memory location after
+        //     that is not in use, you combine them and their space
+    }
+    
     /*
     int newsize = ALIGN(size + SIZE_T_SIZE);
     void *p = mem_sbrk(newsize);
@@ -248,6 +271,22 @@ void *insert(void *addr, int size)
   
   //increment the passed address by (sizeof header) bytes and return it
   return ((char *) addr + (sizeof(char) * sizeof(head_t))); 
+}
+
+/**
+ *Updates the record to the allocation pased
+ *This is different from insert in that it doesn't add a new header. Instead it updates it.
+ **/
+void *record(void *allocation, int size)
+{
+    if (allocation == null || size <= 0) 
+         return NULL;
+    
+    head_t *head = getHead(allocation);
+    head->size = size;
+    head->inUse = 1;
+
+    return ((char *) allocation + size);
 }
 
 /**
