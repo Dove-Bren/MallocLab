@@ -104,7 +104,8 @@ int mm_init(void)
     void *first = getFirst();
     printf("Size: %d\n", getSize(getHead(first)));
 
-
+    mm_malloc(10);
+    printf("address of last: %p\n", getLast()); 
 
     return 0;
 }
@@ -134,9 +135,30 @@ void *mm_malloc(size_t size)
     {
         printf("While Loop: Looking for space!\n");
         //not enough space! Increase heap by double
-        mem_sbrk(heapSize);
-        heap = mem_heap_lo();
-        heapSize *= 2;
+
+	//update the end allocation to reflect our new size
+	int increase = heapSize; //we're going to double, so our increase is
+				 //the current heap size
+        void *last = getLast(); //returns the last allocation in the list
+	mem_sbrk(heapSize); //actually increase the heap size
+	heap = mem_heap_lo();
+	heapSize *= 2;
+        if (getInUse(last) == 0) 
+        {
+	    //not in use, so expand the size
+            int csize = getSize(getHead(last));
+            csize += increase;
+        
+	    //update ending thing with it's new size
+            update(last, csize);
+            (getHead(last))->inUse = 0; //set it to not be in use    
+
+	} else {
+	    //in use, which means we just add a new empty allocation at the end
+	    void *end = getNext(last);
+	    end = ((char *) end - sizeof(head_t)); //adjust for head
+	    format(end, increase);
+	}
     
        //after increasing heapsize, we need to modify the last element in the list to make sure it accoutns for all the size we have. 
 
@@ -275,9 +297,28 @@ void *getFirst()
   return ((char *) heap + headSize); //move up the first address (a header) by the size of the header
 }
 
+/**
+ *Returns the allocation that is last in the list.
+ **/
 void *getLast() 
 {
-  return NULL;
+  void *ptr = getFirst();
+  int offset;
+  while (1)
+  {
+    //check if the next allocation is outside our range
+    offset = getOffset(ptr) + getSize(getHead(ptr) + sizeof(head_t));
+    if (offset > heapSize) 
+    {
+      return ptr;
+    }
+    //else it wont be outside our range, so keep going
+    ptr = getNext(ptr);
+
+    //cycle again
+  }
+
+  //return ptr;
 }
 
 /**
