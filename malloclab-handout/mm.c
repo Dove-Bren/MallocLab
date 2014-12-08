@@ -143,7 +143,7 @@ void *mm_malloc(size_t size)
 	mem_sbrk(heapSize); //actually increase the heap size
 	heap = mem_heap_lo();
 	heapSize *= 2;
-        if (getInUse(last) == 0) 
+        if (getInUse(getHead(last)) == 0) 
         {
 	    //not in use, so expand the size
             int csize = getSize(getHead(last));
@@ -179,10 +179,28 @@ void *mm_malloc(size_t size)
     if (newSize < oldSize)
     {
         printf("appending new zone. Sizes (new, old): [%d, %d]", newSize, oldSize);
-	//create a new header detailing 
-	int difference = oldSize - newSize;
-        format(nextByte(addr), difference);
 
+	//check if there's a memory spot after that's also free
+	//if so, merge them. else, make a new spot after
+	void *next = getNext(addr);
+	
+	if (getOffset(next) <= heapSize)
+	{ 
+	    //there's something after that's not off our heap
+	    int difference = oldSize - newSize;
+
+	    //is it in use?
+	    if (getInUse(getHead(next)) == 0) 
+	    {
+		int thatSize = getSize(getHead(next));
+		format(nextByte(addr), difference + thatSize);
+	    } else
+	    {
+                //create a new header detailing 
+		format(nextByte(addr), difference);
+	    }
+
+	}
         //TODO make it so if there's a nother memory location after
         //     that is not in use, you combine them and their space
     }
