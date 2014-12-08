@@ -133,7 +133,7 @@ void *mm_malloc(size_t size)
     
     while (addr == NULL) 
     {
-        printf("While Loop: Looking for space!\n");
+        printf("Increasing heap size...!\n");
         //not enough space! Increase heap by double
 
 	//update the end allocation to reflect our new size
@@ -169,20 +169,19 @@ void *mm_malloc(size_t size)
     printf("Found an area to put it!\n"); 
     //get the old size, as we will use it later
     int oldSize = getSize(getHead(addr));   
- 
+    void *next = getNext(addr);
     //insert the new record
     addr = update(addr, newSize);
 
     //addr now points to the byte right after our allocated space
-    //if we used all of the space, we're
-    printf("newsize: %d   oldSize: %d\n", newSize, oldSize); 
+    //if we used all of the space, we're set
     if (newSize < oldSize)
     {
-        printf("appending new zone. Sizes (new, old): [%d, %d]", newSize, oldSize);
+        printf("appending new zone. Sizes (new, old): [%d, %d]i\n", newSize, oldSize);
 
 	//check if there's a memory spot after that's also free
 	//if so, merge them. else, make a new spot after
-	void *next = getNext(addr);
+	//void *next = getNext(addr);
 	
 	if (getOffset(next) <= heapSize)
 	{ 
@@ -204,7 +203,7 @@ void *mm_malloc(size_t size)
         //TODO make it so if there's a nother memory location after
         //     that is not in use, you combine them and their space
     }
-    
+    //addr = update(addr, newSize); 
     return addr;
     
     /*
